@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gmail Unread</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .details-enter {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        .details-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.3s ease-out;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800 font-sans antialiased min-h-screen flex flex-col items-center">
+
+    <div class="w-full max-w-md bg-white shadow-xl min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-white px-4 py-4 border-b flex justify-between items-center sticky top-0 z-10">
+            <h1 class="text-xl font-bold flex items-center gap-2 text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-red-500">
+                    <rect width="20" height="16" x="2" y="4" rx="2" />
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                </svg>
+                Unread Viewer
+            </h1>
+            <div id="auth-status" class="text-sm text-gray-500">Not Signed In</div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-4 pb-20">
+
+            <!-- Auth Button -->
+            <div id="auth-container" class="mb-6 text-center hidden">
+                <button id="auth-btn"
+                    class="bg-blue-600 text-white px-6 py-3 rounded-full font-medium shadow-md active:bg-blue-700 transition w-full">
+                    Sign in with Google
+                </button>
+            </div>
+
+            <!-- Controls (Visible only after login) -->
+            <div id="app-controls" class="hidden flex flex-col gap-4 mb-6">
+                <!-- Time Range Switch -->
+                <div class="bg-gray-100 p-1 rounded-lg flex relative">
+                    <div id="slider"
+                        class="absolute bg-white shadow-sm rounded-md h-[calc(100%-8px)] top-1 w-[calc(50%-4px)] transition-all duration-300 ease-out left-1">
+                    </div>
+                    <button onclick="setRange('week')"
+                        class="flex-1 py-2 text-sm font-medium z-10 relative transition-colors duration-300"
+                        id="btn-week">1 Week</button>
+                    <button onclick="setRange('month')"
+                        class="flex-1 py-2 text-sm font-medium z-10 relative text-gray-500 transition-colors duration-300"
+                        id="btn-month">1 Month</button>
+                </div>
+
+                <!-- Search Button -->
+                <button onclick="searchEmails()" id="search-btn"
+                    class="bg-red-500 text-white px-6 py-3 rounded-xl font-bold shadow-md active:bg-red-600 transition flex justify-center items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.3-4.3" />
+                    </svg>
+                    Search Unread
+                </button>
+            </div>
+
+            <!-- Email List -->
+            <div id="email-list" class="space-y-3">
+                <!-- Items will be injected here -->
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="loading" class="hidden flex justify-center py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
+            </div>
+
+            <!-- Error Message -->
+            <div id="error-msg" class="hidden bg-red-50 text-red-600 p-4 rounded-lg mt-4 text-sm border border-red-100">
+            </div>
+
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js');
+        }
+    </script>
+</body>
+
+</html>
