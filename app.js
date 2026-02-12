@@ -173,7 +173,7 @@ async function searchEmails() {
             const snippet = msg.snippet;
 
             const el = document.createElement('a');
-            el.href = `https://mail.google.com/mail/u/0/#inbox/${msg.id}`;
+            el.href = `https://mail.google.com/mail/u/0/#inbox/${msg.threadId}`;
             el.target = "_blank";
             el.className = 'block bg-white p-5 rounded-2xl pop-shadow border-2 border-pink-100 flex flex-col gap-1 active:scale-[0.98] transition-all details-enter text-left no-underline hover:border-pink-300';
             el.style.animationDelay = `${index * 50}ms`;
