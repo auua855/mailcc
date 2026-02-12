@@ -4,94 +4,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gmail Unread</title>
+    <title>未読メール</title>
     <link rel="manifest" href="manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
             -webkit-tap-highlight-color: transparent;
+            background-color: #fdf2f8;
+            /* pink-50 */
+            background-image: radial-gradient(#fbcfe8 1px, transparent 1px);
+            background-size: 20px 20px;
         }
 
         .details-enter {
             opacity: 0;
-            transform: translateY(-10px);
+            transform: translateY(10px) scale(0.95);
         }
 
         .details-enter-active {
             opacity: 1;
-            transform: translateY(0);
-            transition: all 0.3s ease-out;
+            transform: translateY(0) scale(1);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .pop-shadow {
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
+        }
+
+        .pop-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
 
-<body class="bg-gray-50 text-gray-800 font-sans antialiased min-h-screen flex flex-col items-center">
+<body class="text-gray-800 antialiased min-h-screen flex flex-col items-center p-2 sm:p-4">
 
-    <div class="w-full max-w-md bg-white shadow-xl min-h-screen flex flex-col">
+    <div
+        class="w-full max-w-md bg-white/80 backdrop-blur-sm shadow-xl rounded-3xl min-h-[90vh] flex flex-col border-4 border-white">
         <!-- Header -->
-        <header class="bg-white px-4 py-4 border-b flex justify-between items-center sticky top-0 z-10">
-            <h1 class="text-xl font-bold flex items-center gap-2 text-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="text-red-500">
-                    <rect width="20" height="16" x="2" y="4" rx="2" />
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                </svg>
-                Unread Viewer
+        <header
+            class="bg-white/50 px-6 py-5 border-b border-pink-100 flex justify-between items-center sticky top-0 z-10 rounded-t-3xl backdrop-blur-md">
+            <h1 class="text-2xl font-extrabold flex items-center gap-2 text-pink-500 tracking-tight">
+                <span class="bg-pink-100 p-2 rounded-xl">💌</span>
+                未読チェッカー
             </h1>
-            <div id="auth-status" class="text-sm text-gray-500">Not Signed In</div>
+            <div id="auth-status" class="text-xs font-bold bg-gray-100 px-3 py-1 rounded-full text-gray-400">未ログイン</div>
         </header>
 
         <!-- Main Content -->
-        <main class="flex-1 p-4 pb-20">
+        <main class="flex-1 p-4 pb-24 overflow-y-auto">
 
             <!-- Auth Button -->
-            <div id="auth-container" class="mb-6 text-center hidden">
+            <div id="auth-container" class="my-8 text-center hidden">
+                <div class="mb-4 text-sm text-gray-500 font-bold">まずはGoogleでログインしてね！</div>
                 <button id="auth-btn"
-                    class="bg-blue-600 text-white px-6 py-3 rounded-full font-medium shadow-md active:bg-blue-700 transition w-full">
-                    Sign in with Google
+                    class="bg-blue-500 text-white px-8 py-4 rounded-2xl font-bold shadow-lg pop-shadow pop-btn transition w-full flex items-center justify-center gap-3 text-lg">
+                    <svg class="w-6 h-6" viewBox="0 0 24 24">
+                        <path fill="currentColor"
+                            d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.8-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.1 3.2-7.27 7.2-7.27c3.09 0 4.9 1.97 4.9 1.97L19 4.72S16.56 2 12.1 2C6.42 2 2.03 6.8 2.03 12c0 5.05 4.13 12 12.22 12c6.35 0 10.3-4.38 10.3-10.02c0-.52-.05-1.52-.05-1.52z" />
+                    </svg>
+                    Googleでログイン
                 </button>
             </div>
 
             <!-- Controls (Visible only after login) -->
-            <div id="app-controls" class="hidden flex flex-col gap-4 mb-6">
+            <div id="app-controls" class="hidden flex flex-col gap-5 mb-4 mt-2">
                 <!-- Time Range Switch -->
-                <div class="bg-gray-100 p-1 rounded-lg flex relative">
+                <div class="bg-pink-50 p-1.5 rounded-2xl flex relative border border-pink-100">
                     <div id="slider"
-                        class="absolute bg-white shadow-sm rounded-md h-[calc(100%-8px)] top-1 w-[calc(50%-4px)] transition-all duration-300 ease-out left-1">
+                        class="absolute bg-white shadow-sm rounded-xl h-[calc(100%-12px)] top-1.5 w-[calc(50%-6px)] transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) left-1.5 border border-pink-50">
                     </div>
                     <button onclick="setRange('week')"
-                        class="flex-1 py-2 text-sm font-medium z-10 relative transition-colors duration-300"
-                        id="btn-week">1 Week</button>
+                        class="flex-1 py-3 text-sm font-bold z-10 relative transition-colors duration-300 text-pink-500"
+                        id="btn-week">1週間以内</button>
                     <button onclick="setRange('month')"
-                        class="flex-1 py-2 text-sm font-medium z-10 relative text-gray-500 transition-colors duration-300"
-                        id="btn-month">1 Month</button>
+                        class="flex-1 py-3 text-sm font-bold z-10 relative text-gray-400 transition-colors duration-300"
+                        id="btn-month">1ヶ月以内</button>
                 </div>
 
                 <!-- Search Button -->
                 <button onclick="searchEmails()" id="search-btn"
-                    class="bg-red-500 text-white px-6 py-3 rounded-xl font-bold shadow-md active:bg-red-600 transition flex justify-center items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8" />
-                        <path d="m21 21-4.3-4.3" />
-                    </svg>
-                    Search Unread
+                    class="bg-gradient-to-r from-pink-500 to-rose-400 text-white px-6 py-4 rounded-2xl font-extrabold shadow-lg pop-shadow pop-btn transition flex justify-center items-center gap-3 text-lg tracking-wide group">
+                    <span class="group-active:scale-90 transition-transform">🔎</span>
+                    未読メールを検索！
                 </button>
             </div>
 
             <!-- Email List -->
-            <div id="email-list" class="space-y-3">
+            <div id="email-list" class="space-y-3 pb-8">
                 <!-- Items will be injected here -->
             </div>
 
             <!-- Loading Spinner -->
-            <div id="loading" class="hidden flex justify-center py-8">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
+            <div id="loading" class="hidden flex flex-col items-center justify-center py-12 gap-3">
+                <div class="animate-spin rounded-full h-10 w-10 border-4 border-pink-200 border-t-pink-500"></div>
+                <div class="text-pink-400 font-bold text-sm animate-pulse">メールを探しています...</div>
             </div>
 
             <!-- Error Message -->
-            <div id="error-msg" class="hidden bg-red-50 text-red-600 p-4 rounded-lg mt-4 text-sm border border-red-100">
+            <div id="error-msg"
+                class="hidden bg-red-50 text-red-500 p-4 rounded-2xl mt-4 text-sm font-bold border-2 border-red-100 text-center">
             </div>
 
         </main>

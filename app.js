@@ -64,7 +64,7 @@ authBtn.addEventListener('click', handleAuthClick);
 function handleAuthClick() {
     // Check if CLIENT_ID is still the placeholder
     if (CLIENT_ID === 'YOUR_CLIENT_ID_HERE.apps.googleusercontent.com') {
-        const inputId = prompt('Please enter your Google Cloud Client ID:', '');
+        const inputId = prompt('Google Cloud Client IDを入力してください:', '');
         if (inputId) {
             CLIENT_ID = inputId;
             // Re-init token client with new ID
@@ -81,7 +81,7 @@ function handleAuthClick() {
             });
             tokenClient.requestAccessToken();
         } else {
-            alert('Client ID is required to sign in.');
+            alert('ログインするにはClient IDが必要です🥲');
         }
     } else {
         tokenClient.requestAccessToken({ prompt: 'consent' });
@@ -91,8 +91,8 @@ function handleAuthClick() {
 function handleAuthSuccess() {
     authContainer.classList.add('hidden');
     appControls.classList.remove('hidden');
-    authStatus.textContent = 'Signed In';
-    authStatus.classList.add('text-green-600');
+    authStatus.textContent = 'ログイン済み✨';
+    authStatus.classList.add('text-pink-500');
     // Save Client ID to local storage for convenience
     localStorage.setItem('gmail_viewer_client_id', CLIENT_ID);
 }
@@ -135,7 +135,7 @@ async function searchEmails() {
         const messages = response.result.messages;
 
         if (!messages || messages.length === 0) {
-            emailList.innerHTML = '<div class="text-center text-gray-500 py-4">No unread messages found within this range.</div>';
+            emailList.innerHTML = '<div class="text-center text-gray-500 py-8 font-bold">この期間の未読メールはありません！✨<br>やったね！</div>';
             return;
         }
 
@@ -166,15 +166,23 @@ async function searchEmails() {
         details.forEach((res, index) => {
             const msg = res.result;
             const headers = msg.payload.headers;
-            const subject = headers.find(h => h.name === 'Subject')?.value || '(No Subject)';
+            const subject = headers.find(h => h.name === 'Subject')?.value || '(件名なし)';
+            const fromHeader = headers.find(h => h.name === 'From')?.value || '(不明)';
+            // Extract name from "Name <email>" format
+            const fromName = fromHeader.replace(/<.*>/, '').trim().replace(/"/g, '') || fromHeader;
             const snippet = msg.snippet;
 
-            const el = document.createElement('div');
-            el.className = 'bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col gap-1 active:scale-[0.99] transition-transform details-enter';
+            const el = document.createElement('a');
+            el.href = `https://mail.google.com/mail/u/0/#inbox/${msg.id}`;
+            el.target = "_blank";
+            el.className = 'block bg-white p-5 rounded-2xl pop-shadow border-2 border-pink-100 flex flex-col gap-1 active:scale-[0.98] transition-all details-enter text-left no-underline hover:border-pink-300';
             el.style.animationDelay = `${index * 50}ms`;
             el.innerHTML = `
-                <div class="font-bold text-gray-800 text-sm truncate">${subject}</div>
-                <div class="text-xs text-gray-500 line-clamp-2 leading-relaxed">${snippet}</div>
+                <div class="text-xs font-extrabold text-pink-500 mb-1 flex items-center gap-1">
+                    <span>👤</span> ${fromName}
+                </div>
+                <div class="font-bold text-gray-700 text-sm truncate">${subject}</div>
+                <div class="text-xs text-gray-400 line-clamp-2 leading-relaxed mt-1">${snippet}</div>
             `;
             emailList.appendChild(el);
 
@@ -184,7 +192,7 @@ async function searchEmails() {
 
     } catch (err) {
         console.error('Error searching emails', err);
-        errorMsg.textContent = 'Error fetching emails. Please check console or try again.';
+        errorMsg.textContent = 'メールの取得に失敗しちゃいました💦 もう一度試してみてね。';
         errorMsg.classList.remove('hidden');
     } finally {
         loadingSpinner.classList.add('hidden');
